@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shrinkage methods</title>
+    <meta charset="utf-8">
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
+    <link href="libs/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Shrinkage methods
+## for regression
+
+---
+
+
+
+
+# motivation
+
+#### Genome Wide Association Studies (GWAS)
+ - 1,000s of covariates, 100s of data points
+ - most of them unrelated
+
+---
+# motivation
+
+#### Something else
+ - i dunno
+
+---
+
+# the idea
+
+---
+# ridge regression
+
+```
+## Loading required package: Matrix
+```
+
+```
+## Loading required package: foreach
+```
+
+```
+## Loaded glmnet 2.0-13
+```
+
+```
+## Loading required package: htmlwidgets
+```
+
+```
+## Warning in predict.lm(m2, newdata = data.frame(x_seq)): prediction from a
+## rank-deficient fit may be misleading
+```
+
+```
+## PhantomJS not found. You can install it with webshot::install_phantomjs(). If it is installed, please make sure the phantomjs executable can be found via the PATH variable.
+```
+
+<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
+
+---
+# the lasso
+
+---
+class: inverse, center, middle
+
+# Bayesian equivalence
+
+---
+
+# Bayesian ridge regression
+
+## [$$\beta_i \sim N(0, 1)$$]()
+## `$$\epsilon_i \sim N(0, \sigma^2)$$`
+## `$$y = \mathbf{X} \beta + \epsilon$$`
+---
+# Bayesian lasso
+
+[$$\beta_i \sim Laplace(0, 1)$$]()
+`$$\epsilon_i \sim N(0, \sigma^2)$$`
+`$$y = \mathbf{X} \beta + \epsilon$$`
+
+---
+class: center, middle
+
+<i class="fa  fa-github fa-5x "></i>
+### [`github.com/goldingn/shrinkage_lecture`](https://github.com/goldingn/shrinkage_lecture)
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

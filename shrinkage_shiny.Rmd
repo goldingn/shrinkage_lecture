@@ -1,0 +1,154 @@
+---
+title: "Shrinkage methods"
+runtime: shiny
+output: ioslides_presentation
+---
+
+<style>
+h2 { 
+ color: #3399ff;		
+}
+h3 { 
+ color: #3399ff;		
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Motivation
+
+#### Genome Wide Association Studies (GWAS)
+ - 1,000s of covariates, 100s of data points
+ - most of them unrelated
+
+---
+
+## Motivation
+
+#### Something else
+ - i dunno
+
+---
+
+## The Idea
+
+---
+
+## Ridge Regression
+
+```{r ridge, output = FALSE, warning = FALSE}
+library(glmnet)
+
+set.seed(1)
+
+powerify <- function (x, times = length(x)) {
+  powers <- seq_len(times - 1)
+  sapply(powers,
+         function(y, x) x ^ y,
+         x)
+}
+
+predict_shrunk <- function (alpha = 0) {
+  
+  lambdas_glmnet <- lambdas[lambdas > 0]
+  m <- glmnet::glmnet(x, y, alpha = alpha, lambda = lambdas_glmnet)
+  
+  # predictions
+  preds <- predict(m, x_seq)
+  
+  # keep only those glmnet models that converged
+  idx <- as.numeric(gsub("^s", "", colnames(preds)))
+  lambdas <- lambdas[idx + 1]
+  
+  # add the 0-case
+  m2 <- lm(y ~ ., data = data.frame(x))
+  pred0 <- predict(m2, newdata = data.frame(x_seq))
+  preds <- cbind(preds, pred0)
+
+  preds
+}
+
+plot_shrunk <- function() {
+  
+      i = which.min(abs(lambdas - input$penalty))
+      
+      # draw the histogram with the specified number of bins
+      plot.new()
+      plot.window(x = c(0, 1),
+                  y = range(y) * 1.2)
+      
+      points(y ~ x[, 2],
+           pch = 16,
+           cex = 2,
+           col = 'darkgray')
+      axis(1)
+      axis(2, las = 1)
+      title(xlab = "x")
+      mtext("y", 2, las = 1, line = 3)
+      
+      lines(preds[, i] ~ x_seq[, 2],
+           lwd = 4,
+           col = 'hotpink')
+
+}
+
+slider_shrunk <- function(name = "ridge") {
+  sliderInput("penalty",
+              paste(name, "penalty:"),
+              min = 0,
+              max = lambda_max,
+              value = 0,
+              step = lambda_min)
+}
+
+
+# generate bins based on input$bins from ui.R
+n <- 50
+x <- powerify(runif(n))
+x_seq <- powerify(seq(0, 1, length.out = 1000), n)
+y <- sin(x[, 2] * 5) + rnorm(n, 0, 0.3)
+
+lambda_max <- 0.5
+lambda_min <- 0.0001
+lambdas <- seq(lambda_max, lambda_min, by = -lambda_min)
+lambdas <- c(lambdas, 0)
+
+preds <- predict_shrunk(0)
+inputPanel(slider_shrunk("ridge"))
+renderPlot({plot_shrunk()})
+```
+
+---
+
+## The Lasso
+
+---
+
+# Bayesian Equivalence
+
+---
+
+## Bayesian Ridge Regression
+
+$$\beta_i \sim N(0, 1)$$
+$$\epsilon_i \sim N(0, \sigma^2)$$
+$$y = \mathbf{X} \beta + \epsilon$$
+
+---
+
+## Bayesian Lasso
+
+$$\beta_i \sim Laplace(0, 1)$$
+$$\epsilon_i \sim N(0, \sigma^2)$$
+$$y = \mathbf{X} \beta + \epsilon$$
+
+---
+
+`r icon::fa("github", 5)`
+[`github.com/goldingn/shrinkage_lecture`](https://github.com/goldingn/shrinkage_lecture)
+
+---
+
+
