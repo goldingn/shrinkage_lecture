@@ -1,0 +1,10 @@
+name: constraint_app
+title:
+username:
+account: goldingn
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 242921
+bundleId: 1110123
+url: https://goldingn.shinyapps.io/constraint_app/
+when: 1512192452.15066
