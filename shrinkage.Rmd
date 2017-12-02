@@ -13,144 +13,228 @@ output:
 
 ```{r setup, include=FALSE}
 options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(cache=TRUE)
 ```
 
-# motivation
+# Motivation
 
-#### Genome Wide Association Studies (GWAS)
- - 1,000s of covariates, 100s of data points
- - most of them unrelated
+### more accurate predictions
 
----
-# motivation
-
-#### Something else
- - i dunno
+### more parsimonious model
 
 ---
+# Motivation
 
-# the idea
+#### more covariates than data $p > n$
+ - Genome Wide Association Studies (GWAS)
+  - lots of candidates, most of them unimportant
+ - Feature engineering
+  - lots of related covariates, want optimal mix
+  
+#### preventing overfitting
+ - complex combinations of covariates
+ - Feature engineering
+
+#### identifying important predictors
+ - 
 
 ---
-# ridge regression
-```{r echo=FALSE}
-library(shiny)
-library(glmnet)
-library(widgetframe)
+# Why not stepwise selection?
 
-set.seed(1)
+#### not guaranteed optimal
 
-powerify <- function (x, times = length(x)) {
-  powers <- seq_len(times - 1)
-  sapply(powers,
-         function(y, x) x ^ y,
-         x)
-}
+#### sloooow
 
-# generate bins based on input$bins from ui.R
-n <- 30
-x <- powerify(runif(n))
-y <- rnorm(n)
+#### may not want to throw out a potentially useful predictor
 
-lambda_max <- 1
-lambda_step <- 0.00005
-lambdas <- seq(lambda_max, lambda_step, by = -lambda_step)
-m <- glmnet::glmnet(x, y, alpha = 0, lambda = lambdas)
+---
 
-# predictions
-x_seq <- powerify(seq(0, 1, length.out = 1000), n)
-preds <- predict(m, x_seq)
+# The idea
 
-# keep only those glmnet models that converged
-idx <- as.numeric(gsub("^s", "", colnames(preds)))
-lambdas <- lambdas[idx + 1]
+- *shrink* the coefficients toward 0 by adding a penalty on the size of $\beta$
 
-# add the 0-case
-# 0-case
-m2 <- lm(y ~ ., data = data.frame(x))
-pred0 <- predict(m2, newdata = data.frame(x_seq))
+- we want a model that fits the data, but we also don't want $\beta$ to be too big
 
-preds <- cbind(preds, pred0)
-lambdas <- c(lambdas, 0)
+---
 
-# Define UI for application that draws a histogram
-ui <- fluidPage(
-   
-   # Application title
-   titlePanel("ridge regression"),
-   
-   # Sidebar with a slider input for number of bins 
-   sidebarLayout(
-      sidebarPanel(
-         sliderInput("penalty",
-                     "ridge penalty:",
-                     min = 0,
-                     max = lambda_max,
-                     value = 0,
-                     step = lambda_step)
-      ),
-      
-      # Show a plot of the generated distribution
-      mainPanel(
-         plotOutput("line_plot")
-      )
-   )
-)
+# The idea
 
-# Define server logic required to draw a histogram
-server <- function(input, output) {
-   
-   output$line_plot <- renderPlot({
-      
-      i = which.min(abs(lambdas - input$penalty))
-      
-      # draw the histogram with the specified number of bins
-      plot.new()
-      plot.window(x = range(x[, 2]),
-                  y = range(y))
-      
-      points(y ~ x[, 2],
-           pch = 16,
-           col = 'darkgray')
-      axis(1)
-      axis(2, las = 1)
-      title(xlab = "x")
-      mtext("y", 2, las = 1, line = 3)
-      
-      lines(preds[, i] ~ x_seq[, 2],
-           lwd = 3,
-           col = 'hotpink')
-   })
-}
+#### linear regression:
 
-# Run the application 
-shinyApp(ui = ui, server = server)
+$$\hat{\beta} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\}$$
+
+$$\mathrm{RSS}(\beta) = \sum_{i=1}^N(y_i - \hat{y}_i)^2$$
+$$\mathbf{\hat{\mathbf{y}}} = \alpha + \mathbf{X}\beta$$
+
+#### penalized regression:
+$$\hat{\beta}^\mathrm{shrinkage} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta) + f(\beta)\}$$
+<br>
+- we don't care that this is a *biased estimator* of $\beta$
+
+---
+
+# Two penalties:
+<br>
+### Ridge regression
+<br>
+### The lasso
+
+---
+# Ridge regression
+
+
+<br>
+### penalise *sum of beta squared*
+<br>
+
+$$\mathrm{ridge \,\, penalty:} \,\,\,\,\,\, f(\beta) = \lambda \sum_{i=1}^p\beta^2$$
+<br>
+$$\hat{\beta}^\mathrm{ridge} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta) + \lambda \sum_{i=1}^p\beta^2\}$$
+<!-- ### Solutions
+linear regression: $\hat{\beta} = (\mathbf{X}'\mathbf{X})^{-1} \mathbf{X}'\mathbf{y}$
+ridge regression: $\hat{\beta}^{\mathrm{ridge}} = (\mathbf{X}'\mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}'\mathbf{y}$-->
+
+<!-- plot three panels with RSS, penalty, and sum -->
+
+---
+# Ridge regression
+
+ interactive demo
+
+---
+# Ridge regression
+
+
+#### as constrained optimisation
+
+  
+$$\hat{\beta}^\mathrm{ridge} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\} \,\,\,\, \mathrm{s.t.}\,\, \sum_{i=1}^p\beta^2 < c$$
+<br>
+<!--
+if parameters within constrained region, no shrinkage.
+otherwise they are brought to the constraint
+-->
+
+```{r ridge_constraint, echo = FALSE, fig.width = 15, fig.height = 5.5, dpi = 600, dev.args = list(pointsize = 25)}
+source("constraint_app/functions.R")
+data <- simulate_data()
+fit <- fit_ls(data)
+density <- density_surface(fit)
+
+par(mfrow = c(1, 3))
+
+# coefficients not shrunk
+plot_setup()
+add_density(density)
+
+lambda <- 0.1
+ridge <- plotting_data(lambda, type = "ridge")
+
+add_contour(ridge$RSS)
+
+c <- find_c(ridge$beta)
+pts <- constraint_points(c, "ridge")
+add_constraint(pts)
+points(ridge$beta[1], ridge$beta[2], pch = 16)
+
+title(bquote(lambda == .(lambda) ~~~~ c == .(round(c, 2))))
+
+# coefficients not shrunk
+plot_setup()
+add_density(density)
+ridge <- plotting_data(0, type = "ridge")
+c <- find_c(ridge$beta)
+pts <- constraint_points(c, "ridge")
+add_constraint(pts)
+
+title(bquote(lambda == 0 ~~~~ c == sqrt(sum(beta^2))))
+
+# coefficients completely shrunk
+plot_setup()
+add_density(density)
+c <- 0.05
+pts <- constraint_points(c, "ridge")
+add_constraint(pts)
+
+title(bquote(lambda == infinity ~~~~ c == 0  ))
 ```
 
 ---
-# the lasso
+# The lasso
+<br>
+$$\mathrm{lasso \,\, penalty:} \,\,\,\,\,\, f(\beta) = \lambda \sum_{i=1}^p|\beta|$$
+<br>
+$$\hat{\beta}^\mathrm{ridge} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta) + \lambda \sum_{i=1}^p|\beta|\}$$
 
 ---
-class: inverse, center, middle
+# ridge vs. lasso
 
-# Bayesian equivalence
+<!-- how much difference could this possibly make? -->
+
+```{r constraint_comparison, echo = FALSE, fig.width = 10, fig.height = 5.5, dpi = 600}
+source("constraint_app/functions.R")
+par(mfrow = c(1, 2))
+plot_setup()
+title(bquote("ridge constraint" ~ (L[2])))
+pts <- constraint_points(2, "ridge")
+add_constraint(pts)
+
+plot_setup()
+title(bquote("lasso constraint" ~ (L[1])))
+pts <- constraint_points(2, "lasso")
+add_constraint(pts)
+```
+
 
 ---
+# ridge vs. lasso
 
-# Bayesian ridge regression
+- the lasso shrinks coefficients to zero!
 
-## [$$\beta_i \sim N(0, 1)$$]()
-## $$\epsilon_i \sim N(0, \sigma^2)$$
-## $$y = \mathbf{X} \beta + \epsilon$$
+plot: shrinkage profiles for ridge vs. lasso
+
 ---
-# Bayesian lasso
+background-image: url("constraint_app.png")
+background-position: center
+background-repeat: no-repeat
+background-size: 70%
 
-[$$\beta_i \sim Laplace(0, 1)$$]()
-$$\epsilon_i \sim N(0, \sigma^2)$$
-$$y = \mathbf{X} \beta + \epsilon$$
+### [the lasso shrinks coefficients to zero](https://goldingn.shinyapps.io/constraint_app/)
+
+---
+# practical issues
+
+- selecting lambda
+- standardizing
+
+---
+# Equivalences
+
+### Bayesian ridge regression
+$$\beta_i \sim N(0, ?)$$
+
+<!--add figure of priors in profile-->
+
+### Bayesian lasso
+$$\beta_i \sim Laplace(0, ?)$$
+
+equivalences in machine learning (weight decay & basis pursuit)
+
+---
+# other shrinkage methods
+
+Least angle regression 
+Elastic net
+
 
 ---
 class: center, middle
+
+# further reading
+
+
+
+[`glmnet`]()
 
 `r icon::fa("github", 5)`
 ### [`github.com/goldingn/shrinkage_lecture`](https://github.com/goldingn/shrinkage_lecture)
