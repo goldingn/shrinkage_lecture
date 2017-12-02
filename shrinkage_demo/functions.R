@@ -133,7 +133,7 @@ plot_betas <- function (input, lambdas, data, preds) {
       mar = c(3, 6, 3, 2))
   
   # plot beta
-  barplot(beta,
+  bp <- barplot(beta,
           axes = FALSE,
           names.arg = nm,
           border = NA,
