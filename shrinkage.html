@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/metropolis-fonts.css" rel="stylesheet" />
-    <link href="libs/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="stylin.css" type="text/css" />
   </head>
   <body>
     <textarea id="source">
@@ -19,79 +19,249 @@ class: center, middle, inverse, title-slide
 
 
 
-# motivation
+## Motivation
 
-#### Genome Wide Association Studies (GWAS)
- - 1,000s of covariates, 100s of data points
- - most of them unrelated
+.state[more accurate predictions]
+
+&lt;img src="train_test.png" width="500" style="display: block; margin: auto;" /&gt;
+
+Image credit: [Elements of Statistical Learning](https://web.stanford.edu/~hastie/Papers/ESLII.pdf)
+---
+## Motivation
+
+.state[sift through many candidate predictors]
+
+enable inference when `\(p \gg n\)`, e.g:
+ - Feature engineering
+ - Genome Wide Association Studies (GWAS)
+ 
+&lt;img src="Manhattan_Plot.png" width="800" style="display: block; margin: auto;" /&gt;
+ 
+Image credit: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Manhattan_Plot.png)
+---
+## The idea
+
+&lt;br&gt;
+
+.medium[we want a model that fits the data, but we also don't want coefficients to be too big]
+
+&lt;br&gt;
+
+.medium[we don't care about obtaining an unbiased estimator of the coefficients]
+
+&lt;br&gt;
+
+.state[*shrink* coefficients toward zero by adding a penalty on their size]
 
 ---
-# motivation
+## The idea
 
-#### Something else
- - i dunno
+.medium[linear regression:]
 
----
+`$$\hat{\beta} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\}$$`
 
-# the idea
+`$$\mathrm{RSS}(\beta) = \sum_{i=1}^N(y_i - \hat{y}_i)^2$$`
+`$$\mathbf{\hat{\mathbf{y}}} = \alpha + \mathbf{X}\beta$$`
 
----
-# ridge regression
+&lt;br&gt;
 
-```
-## Loading required package: Matrix
-```
-
-```
-## Loading required package: foreach
-```
-
-```
-## Loaded glmnet 2.0-13
-```
-
-```
-## Loading required package: htmlwidgets
-```
-
-```
-## Warning in predict.lm(m2, newdata = data.frame(x_seq)): prediction from a
-## rank-deficient fit may be misleading
-```
-
-```
-## PhantomJS not found. You can install it with webshot::install_phantomjs(). If it is installed, please make sure the phantomjs executable can be found via the PATH variable.
-```
-
-<div style="width: 100% ; height: 400px ; text-align: center; box-sizing: border-box; -moz-box-sizing: border-box; -webkit-box-sizing: border-box;" class="muted well">Shiny applications not supported in static R Markdown documents</div>
-
----
-# the lasso
-
----
-class: inverse, center, middle
-
-# Bayesian equivalence
+.medium[penalized regression:]
+`$$\hat{\beta}^\mathrm{penalized} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta) + f(\beta)\}$$`
 
 ---
 
-# Bayesian ridge regression
+## Two penalties:
+  
 
-## [$$\beta_i \sim N(0, 1)$$]()
-## `$$\epsilon_i \sim N(0, \sigma^2)$$`
-## `$$y = \mathbf{X} \beta + \epsilon$$`
+&lt;br&gt;
+
+&lt;br&gt;
+
+.state[Ridge regression]
+
+Hoerl &amp; Kennard (1970) -  [link](https://doi.org/10.2307%2F1267351)
+
+&lt;br&gt;
+
+.state[The lasso]
+
+Tibshirani (1996) - [link](https://www.jstor.org/stable/2346178)
+
 ---
-# Bayesian lasso
+## Ridge regression
 
-[$$\beta_i \sim Laplace(0, 1)$$]()
-`$$\epsilon_i \sim N(0, \sigma^2)$$`
-`$$y = \mathbf{X} \beta + \epsilon$$`
+&lt;br&gt;
+
+.medium[penalise *sum of beta squared*] (the L&lt;sup&gt;2&lt;/sup&gt;-norm)
+
+&lt;br&gt;
+
+`$$f(\beta) = \lambda \sum_{i=1}^p\beta^2$$`
+&lt;br&gt;
+`$$\hat{\beta}^\mathrm{ridge} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta) + \lambda \sum_{i=1}^p\beta^2\}$$`
 
 ---
-class: center, middle
+background-image: url("ridge_demo.png")
+background-position: center
+background-repeat: no-repeat
+background-size: 90%
 
-<i class="fa  fa-github fa-5x "></i>
-### [`github.com/goldingn/shrinkage_lecture`](https://github.com/goldingn/shrinkage_lecture)
+## Ridge regression demo
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+[goldingn.shinyapps.io/shrinkage_demo](https://goldingn.shinyapps.io/shrinkage_demo)
+---
+## Ridge regression
+
+.medium[as constrained optimisation]
+
+  
+`$$\hat{\beta}^\mathrm{ridge} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\} \,\,\,\,\,\,\,\, \mathrm{s.t.}\,\, \sum_{i=1}^p\beta^2 &lt; t$$`
+&lt;br&gt;
+&lt;!--
+if parameters within constrained region, no shrinkage.
+otherwise they are brought to the constraint
+--&gt;
+
+![](shrinkage_files/figure-html/ridge_constraint-1.png)&lt;!-- --&gt;
+
+---
+## The lasso
+
+.medium[penalise *sum of modulus of beta*] (the L&lt;sup&gt;1&lt;/sup&gt;-norm)
+
+`$$f(\beta) = \lambda \sum_{i=1}^p|\beta|$$`
+
+so
+
+`$$\hat{\beta}^\mathrm{lasso} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta) + \lambda \sum_{i=1}^p|\beta|\}$$`
+
+or equivalently
+
+`$$\hat{\beta}^\mathrm{lasso} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\} \,\,\,\,\,\,\,\, \mathrm{s.t.}\,\, \sum_{i=1}^p|\beta| &lt; t$$`
+
+---
+## ridge vs. lasso
+
+&lt;img src="shrinkage_files/figure-html/constraint_comparison-1.png" width="500" height="500" style="display: block; margin: auto;" /&gt;
+
+
+
+---
+background-image: url("lasso_demo.png")
+background-position: center
+background-repeat: no-repeat
+background-size: 90%
+
+## Lasso shrinks coefficients to zero!
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+[goldingn.shinyapps.io/shrinkage_demo](https://goldingn.shinyapps.io/shrinkage_demo)
+---
+background-image: url("constraint_app.png")
+background-position: center
+background-repeat: no-repeat
+background-size: 70%
+
+## Why does lasso shrink to zero?
+
+&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;&lt;br&gt;
+
+[goldingn.shinyapps.io/constraint_app](https://goldingn.shinyapps.io/constraint_app/)
+---
+## Estimation
+
+&lt;br&gt;
+
+.medium[linear regression:]
+`$$\hat{\beta} = (\mathbf{X}'\mathbf{X})^{-1} \mathbf{X}'\mathbf{y}$$`
+
+&lt;br&gt;
+
+.medium[ridge regression:]
+`$$\hat{\beta}^{\mathrm{ridge}} = (\mathbf{X}'\mathbf{X} + \lambda \mathbf{I})^{-1} \mathbf{X}'\mathbf{y}$$`
+
+&lt;br&gt;
+
+.medium[lasso has no closed-form solution, so we optimize numerically]
+
+---
+## practical issues
+
+&lt;br&gt;
+
+.medium[ridge and lasso estimates are influenced by scale of covariates, so we usually standardize covariates first]
+
+&lt;br&gt;
+
+.medium[select lambda by cross-validation]
+
+
+```r
+library (glmnet)
+
+# lasso
+cv.glmnet(x, y, alpha = 0, nfolds = 5)
+
+# ridge
+cv.glmnet(x, y, alpha = 1, nfolds = 5)
+```
+
+---
+## Bayesian equivalence
+
+`$$p(\beta|\mathbf{X}, y) \propto p(y | \mathbf{X} \beta) p(\beta)$$`
+
+&lt;!--$$\hat{\beta} = \underset{\beta}{argmin} \{ RSS(\beta) \} = \underset{\beta}{argmax} \{ p(y|\mathbf{X}\beta) \}$$--&gt;
+
+`$$\hat{\beta}_{MAP}(\mathbf{X}, y) = \underset{\beta}{argmin}  \{ RSS(\beta) + -ln\, p(\beta) \}$$`
+
+
+&lt;!--$$-ln\, N(\beta; 0, \lambda^{-1}) = \lambda \sum_i^p\beta_i^2 + \mathrm{const.}$$--&gt;
+
+&lt;!--$$-ln\, \mathrm{Laplace}(\beta; 0, \sigma^2) = \sum_i^p|\beta_i| + \mathrm{const.}$$--&gt;
+
+&lt;br&gt;
+
+![](shrinkage_files/figure-html/priors-1.png)&lt;!-- --&gt;
+&lt;!-- equivalences in machine learning (weight decay &amp; basis pursuit); AKA Tikhonov regularisation --&gt;
+---
+## Other shrinkage methods
+
+&lt;br&gt;
+
+.large[Least Angle Regression]
+
+closely related to lasso
+
+&lt;br&gt;
+
+.large[Elastic net]
+
+a mixture of ridge and lasso penalties
+
+`\(f(\beta) = \lambda \sum_{i=1}^p a \beta_i^2 + (1 - a)|\beta_i|\)`
+
+
+
+---
+## materials
+
+&lt;br&gt;
+
+
+
+.large[[slides, code, interactives](https://github.com/goldingn/shrinkage_lecture)]
+
+`github.com/goldingn/shrinkage_lecture`
+
+&lt;br&gt;
+
+.large[[glmnet R package](https://cran.r-project.org/web/packages/glmnet/index.html)]
+
+including introductory vignette
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
