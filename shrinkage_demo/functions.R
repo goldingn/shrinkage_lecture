@@ -5,18 +5,18 @@ powerify <- function (x, times = length(x)) {
 }
 
 f <- function(x)
-  sin(x * 4) * pmax(0, cos(x * 3))
+  sin(x * 2) * pmax(0, cos(x * 2))
 
 simulate_data <- function () {
   
   set.seed(1)
   n <- 50
-  powers <- 10
+  powers <- 6
   
   x <- powerify(runif(n, -1.5, 1.5),
                 powers)
   
-  y <- f(x[, 1]) + rnorm(n, 0, 0.1)
+  y <- f(x[, 1]) + rnorm(n, 0, 0.2)
   y <- scale(y)
   m <- lm(y ~ . - 1, data = data.frame(x))
   
@@ -124,7 +124,7 @@ plot_betas <- function (input, lambdas, data, preds) {
   beta_shrunk <- preds[[input$type]]$beta[, i]
   
   # get ratio (shrinkage factor)
-  ratio <- abs(beta_shrunk / beta)
+  ratio <- pmin(1, abs(beta_shrunk / beta))
   ratio_mat <- rbind(ratio, 1 - ratio)
   
   nm <- rep("", length(beta))
