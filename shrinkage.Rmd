@@ -97,9 +97,13 @@ ridge regression: $\hat{\beta}^{\mathrm{ridge}} = (\mathbf{X}'\mathbf{X} + \lamb
 <!-- plot three panels with RSS, penalty, and sum -->
 
 ---
-# Ridge regression
+background-image: url("shrinkage_demo.png")
+background-position: center
+background-repeat: no-repeat
+background-size: 90%
 
- interactive demo
+### [Ridge regression demo](https://goldingn.shinyapps.io/shrinkage_demo/)
+
 
 ---
 # Ridge regression
