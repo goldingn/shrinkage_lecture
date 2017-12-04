@@ -27,6 +27,7 @@ knitr::include_graphics("train_test.png")
 ```
 
 Image credit: [Elements of Statistical Learning](https://web.stanford.edu/~hastie/Papers/ESLII.pdf)
+
 ---
 ## Motivation
 
@@ -149,7 +150,7 @@ pts <- constraint_points(c, "ridge")
 add_constraint(pts)
 points(ridge$beta[1], ridge$beta[2], pch = 16)
 
-title(bquote(lambda == .(lambda) ~~~~ t == .(round(c, 2))))
+title(bquote(lambda == .(lambda) ~~~~ t == .(round(c ^ 2, 2))))
 
 # coefficients not shrunk
 plot_setup()
@@ -159,7 +160,7 @@ c <- find_c(ridge$beta)
 pts <- constraint_points(c, "ridge")
 add_constraint(pts)
 
-title(bquote(lambda == 0 ~~~~ t == sqrt(sum(beta^2))))
+title(bquote(lambda == 0 ~~~~ t == sum(beta^2)))
 
 # coefficients completely shrunk
 plot_setup()
