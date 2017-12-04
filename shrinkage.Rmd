@@ -121,7 +121,7 @@ background-size: 90%
 .medium[as constrained optimisation]
 
   
-$$\hat{\beta}^\mathrm{ridge} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\} \,\,\,\,\,\,\,\, \mathrm{s.t.}\,\, \sum_{i=1}^p\beta^2 < t$$
+$$\hat{\beta}^\mathrm{ridge} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\} \,\,\,\,\,\,\,\, \mathrm{s.t.}\,\, \sum_{i=1}^p\beta^2 \le t$$
 <br>
 <!--
 if parameters within constrained region, no shrinkage.
@@ -185,7 +185,7 @@ $$\hat{\beta}^\mathrm{lasso} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}
 
 or equivalently
 
-$$\hat{\beta}^\mathrm{lasso} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\} \,\,\,\,\,\,\,\, \mathrm{s.t.}\,\, \sum_{i=1}^p|\beta| < t$$
+$$\hat{\beta}^\mathrm{lasso} = \underset{\beta}{\mathrm{argmin}} \{ \mathrm{RSS}(\beta)\} \,\,\,\,\,\,\,\, \mathrm{s.t.}\,\, \sum_{i=1}^p|\beta| \le t$$
 
 ---
 ## ridge vs. lasso
